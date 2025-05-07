@@ -123,6 +123,18 @@ def backtrack(assignments: Assignments, b: int):
         assignments.pop(var)
 
 
+def eliminate_pure_literals(formula: Formula, assignments: Assignments):
+    s = set()
+    for clause in formula:
+        for lit in clause:
+            s.add(lit)
+    for var in formula.variables():
+        if Literal(var, False) not in s:
+            assignments.assign(var, False, antecedent=None)
+        elif Literal(var, True) not in s:
+            assignments.assign(var, True, antecedent=None)
+
+
 def cdcl_solve(formula: Formula) -> Optional[Assignments]:
     """
     Solve the CNF formula.
@@ -131,6 +143,9 @@ def cdcl_solve(formula: Formula) -> Optional[Assignments]:
     If UNSAT, return None.
     """
     assignments = Assignments()
+
+    #Pure literals check on input
+    eliminate_pure_literals(formula,assignments)
 
     # First, do unit propagation to assign the initial unit clauses 
     reason, clause = unit_propagation(formula, assignments)
