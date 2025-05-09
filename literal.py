@@ -23,3 +23,8 @@ class Literal:
         """
         return Literal(self.variable, not self.negation)
 
+    def to_opb_string(self):
+        if self.negation:
+            return '1 ~x' + str(self.variable)
+        else:
+            return '1 x' + str(self.variable)

@@ -43,3 +43,14 @@ class Assignments(dict):
                 return False
 
         return True
+
+    def to_sol(self):
+        literals = [Literal(k,not self[k].value) for k in self.keys()]
+        strings = []
+        res = "sol"
+        for k in self.keys():
+            if self[k].value:
+                res = res + " x" + str(k)
+            else:
+                res = res + " ~x" + str(k)
+        return res

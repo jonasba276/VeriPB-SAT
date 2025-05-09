@@ -38,3 +38,6 @@ class Formula:
 
     def __len__(self):
         return len(self.clauses)
+
+    def to_opb(self):
+        return "".join([c.to_opb()+"\n" for c in self.clauses])

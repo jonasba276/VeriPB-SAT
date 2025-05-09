@@ -8,6 +8,7 @@ from clause import Clause
 from formula import Formula
 from assignment import Assignment
 from assignments import Assignments
+from proof import Proof, UnsatProof, SatProof
 
 
 def clause_status(clause: Clause, assignments: Assignments) -> str:
@@ -125,17 +126,20 @@ def backtrack(assignments: Assignments, b: int):
 
 def eliminate_pure_literals(formula: Formula, assignments: Assignments):
     s = set()
+    pure_literals = []
     for clause in formula:
         for lit in clause:
             s.add(lit)
     for var in formula.variables():
         if Literal(var, False) not in s:
             assignments.assign(var, False, antecedent=None)
+            pure_literals.append(Literal(var,True))
         elif Literal(var, True) not in s:
             assignments.assign(var, True, antecedent=None)
+            pure_literals.append(Literal(var,False))
+    return pure_literals
 
-
-def cdcl_solve(formula: Formula) -> Optional[Assignments]:
+def cdcl_solve(formula: Formula) -> Tuple[Assignments|None,Proof]:
     """
     Solve the CNF formula.
 
@@ -143,14 +147,15 @@ def cdcl_solve(formula: Formula) -> Optional[Assignments]:
     If UNSAT, return None.
     """
     assignments = Assignments()
+    learnt_clauses = []
 
     #Pure literals check on input
-    eliminate_pure_literals(formula,assignments)
+    pure_literals = eliminate_pure_literals(formula,assignments)
 
     # First, do unit propagation to assign the initial unit clauses 
     reason, clause = unit_propagation(formula, assignments)
     if reason == 'conflict':
-        return None
+        return None,UnsatProof(pure_literals,learnt_clauses)
 
     while not all_variables_assigned(formula, assignments):
         var, val = pick_branching_variable(formula, assignments)
@@ -165,8 +170,8 @@ def cdcl_solve(formula: Formula) -> Optional[Assignments]:
 
             b, learnt_clause = conflict_analysis(clause, assignments)
             if b < 0:
-                return None
-
+                return None,UnsatProof(pure_literals,learnt_clauses)
+            learnt_clauses.append(learnt_clause)
             add_learnt_clause(formula, learnt_clause)
             backtrack(assignments, b)
             assignments.dl = b
@@ -174,7 +179,7 @@ def cdcl_solve(formula: Formula) -> Optional[Assignments]:
             # The learnt clause must be a unit clause, so the
             # next step must again be unit propagation
 
-    return assignments
+    return assignments,SatProof(assignments)
 
 def parse_dimacs_cnf(content: str) -> Formula:
     """
@@ -198,7 +203,6 @@ def parse_dimacs_cnf(content: str) -> Formula:
 
     return Formula(clauses)
 
-
 if __name__ == '__main__':
     # you might comment it to get inconsistent execution time
     random.seed(5201314)
@@ -211,9 +215,10 @@ if __name__ == '__main__':
     formula = parse_dimacs_cnf(dimacs_cnf)
     result = cdcl_solve(formula)
     if result:
-        assert result.satisfy(formula)
+        assert result[0].satisfy(formula)
         print('Formula is SAT with assignments:')
-        assignments = {var: assignment.value for var, assignment in result.items()}
+        assignments = {var: assignment.value for var, assignment in result[0].items()}
         pprint(assignments)
+        print('A VeriPB proof is: \n\n' + str(result[1]))
     else:
-        print('Formula is UNSAT.')
+        print('Formula is UNSAT. A VeriPB proof is: \n\n' + str(result[1]))
