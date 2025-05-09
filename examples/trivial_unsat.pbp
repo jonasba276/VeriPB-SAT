@@ -1,0 +1,6 @@
+pseudo-Boolean proof version 2.0
+* The formula is unsatisfiable, the following is a pseudo-Boolean proof:
+rup >= 1
+output NONE
+conclusion UNSAT
+end pseudo-Boolean proof

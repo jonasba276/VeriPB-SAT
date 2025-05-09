@@ -1,0 +1,6 @@
+pseudo-Boolean proof version 2.0
+* The formula is satisfiable, a possible assignment is
+sol x51 x3 x15 ~x4 ~x43 ~x33 x6 ~x57 x41 ~x48 ~x34 x45 x5 ~x44 x35 ~x36 ~x21 x22 ~x2 ~x1 ~x42 x37 x38 ~x25 ~x56 ~x23 ~x16 ~x55 x17 ~x18 x24 ~x54 ~x14 ~x40 x39 ~x20 x58 ~x19 x8 ~x31 x30 x28 x27 x59 ~x60 x12 x11 x29 x50 x49 x46 x7 x47 ~x32 ~x53 x13 x26 x52
+output NONE
+conclusion SAT
+end pseudo-Boolean proof

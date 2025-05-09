@@ -1,0 +1,5 @@
+pseudo-Boolean proof version 2.0
+* The formula is satisfiable, a possible assignment is
+sol
+output NONE
+conclusion SAT
