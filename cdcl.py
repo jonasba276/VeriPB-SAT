@@ -203,6 +203,28 @@ def parse_dimacs_cnf(content: str) -> Formula:
 
     return Formula(clauses)
 
+def parse_dimacs_cnf(content: str) -> Formula:
+    """
+    parse the DIMACS cnf file format into corresponding Formula.
+    """
+    clauses = [Clause([])]
+    for line in content.splitlines():
+        tokens = line.split()
+        if len(tokens) != 0 and tokens[0] not in ("p", "c"):
+            for tok in tokens:
+                lit = int(tok)
+                if lit == 0:
+                    clauses.append(Clause([]))
+                else:
+                    var = abs(lit)
+                    neg = lit < 0
+                    clauses[-1].literals.append(Literal(var, neg))
+
+    if len(clauses[-1]) == 0:
+        clauses.pop()
+
+    return Formula(clauses)
+
 if __name__ == '__main__':
     # you might comment it to get inconsistent execution time
     random.seed(5201314)
@@ -214,11 +236,8 @@ if __name__ == '__main__':
     dimacs_cnf = open(sys.argv[1]).read()
     formula = parse_dimacs_cnf(dimacs_cnf)
     result = cdcl_solve(formula)
-    if result:
+    if result[0]:
         assert result[0].satisfy(formula)
-        print('Formula is SAT with assignments:')
-        assignments = {var: assignment.value for var, assignment in result[0].items()}
-        pprint(assignments)
-        print('A VeriPB proof is: \n\n' + str(result[1]))
+        print(result[1])
     else:
-        print('Formula is UNSAT. A VeriPB proof is: \n\n' + str(result[1]))
+        print(result[1])

@@ -31,8 +31,9 @@ class UnsatProof(Proof):
 
     def __str__(self):
         return ("pseudo-Boolean proof version 2.0\n" +
-                "\n".join(list(map(lambda c: c.to_rup(), self.learnt_clauses))) +
-                "\nrup >= 1" +
+                "* The formula is unsatisfiable, the following is a pseudo-Boolean proof:\n" +
+                "".join(list(map(lambda c: c.to_rup()+"\n", self.learnt_clauses))) +
+                "rup >= 1" +
                 "\noutput NONE\nconclusion UNSAT\nend pseudo-Boolean proof")
 
 class SatProof(Proof):
@@ -44,6 +45,6 @@ class SatProof(Proof):
 
     def __str__(self):
         return ("pseudo-Boolean proof version 2.0\n" +
+                "* The formula is satisfiable, a possible assignment is\n" +
                 self.assignments.to_sol() +
-                "\noutput NONE\nconclusion SAT" +
-                "\n")
+                "\noutput NONE\nconclusion SAT\nend pseudo-Boolean proof")
